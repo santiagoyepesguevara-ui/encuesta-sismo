@@ -1,1 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caracterización Alojamiento Temporal - Sismo</title>
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-dark: #1e3a8a;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --border: #cbd5e1;
+      --alert: #dc2626;
+    }
 
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      color: var(--primary);
+      text-align: center;
+      margin-top: 0;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 8px;
+    }
+
+    .status-bar {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .online { background-color: #dcfce7; color: #166534; }
+    .offline { background-color: #fee2e2; color: #991b1b; }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+      background-color: #fafafa;
+    }
+
+    legend {
+      font-weight: bold;
+      color: var(--primary);
+      padding: 0 8px;
+      font-size: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.95rem;
+    }
+
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: normal;
+      font-size: 0.88rem;
+    }
+
+    .checkbox-item input {
+      width: auto;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-primary { background-color: var(--primary); color: white; margin-top: 10px; }
+    .btn-primary:hover { background-color: var(--primary-dark); }
+    .btn-secondary { background-color: #059669; color: white; margin-top: 12px; }
+
+    .counter-box {
+      margin-top: 20px;
+      padding: 12px;
+      background: #e2e8f0;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Levantamiento de Información: Sismo</h1>
+  <div id="status" class="status-bar">Comprobando estado de red...</div>
+
+  <form id="emergencyForm">
+
+    <!-- MÓDULO 1 -->
+    <fieldset>
+      <legend>1. Datos de Control y Ubicación</legend>
+      
+      <div class="form-group">
+        <label>49. Nombre completo del encuestador/a:</label>
+        <input type="text" id="encuestador" required>
+      </div>
+
+      <div class="form-group">
+        <label>2. Fecha de levantamiento:</label>
+        <input type="date" id="fecha_visita" required>
+      </div>
+
+      <div class="form-group">
+        <label>3. Hora:</label>
+        <input type="time" id="hora_visita" required>
+      </div>
+
+      <div class="form-group">
+        <label>4. Municipio y Departamento:</label>
+        <input type="text" id="municipio_depto" placeholder="Ej: Quinchía, Risaralda" required>
+      </div>
+
+      <div class="form-group">
+        <label>5. Barrio, Sector o Vereda:</label>
+        <input type="text" id="barrio_vereda" required>
+      </div>
+
+      <div class="form-group">
+        <label>1. Ubicación GPS / Referencia exacta:</label>
+        <input type="text" id="ubicacion_gps" placeholder="Dirección o punto de referencia exacto">
+      </div>
+    </fieldset>
+
+    <!-- MÓDULO 2 -->
+    <fieldset>
+      <legend>2. Identificación del Hogar y Alojamiento</legend>
+
+      <div class="form-group">
+        <label>6. Nombre del Jefe/a del Hogar:</label>
+        <input type="text" id="jefe_hogar" required>
+      </div>
+
+      <div class="form-group">
+        <label>7. Teléfono de contacto:</label>
+        <input type="tel" id="telefono" required>
+      </div>
+
+      <div class="form-group">
+        <label>18. ¿Dónde permanecen actualmente?</label>
+        <select id="lugar_permanencia" required>
+          <option value="">Seleccione...</option>
+          <option value="Carpa">Carpa</option>
+          <option value="Espacio público">Espacio público</option>
+          <option value="Vivienda afectada">Vivienda afectada</option>
+          <option value="Local comercial afectado">Local comercial afectado</option>
+          <option value="Vivienda familiar o amigo">Vivienda familiar o amigo</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>19. ¿Por qué permanecen allí?</label>
+        <select id="motivo_permanencia" required>
+          <option value="">Seleccione...</option>
+          <option value="Vivienda inhabitable">Vivienda inhabitable</option>
+          <option value="Miedo a ingresar a la vivienda">Miedo a ingresar a la vivienda</option>
+          <option value="Protección de pertenencias">Protección de pertenencias</option>
+          <option value="Cuidado establecimiento/local">Cuidado de establecimiento o local</option>
+          <option value="Cuidado de predio">Cuidado de predio</option>
+          <option value="No tengo otro sitio">No tengo otro sitio</option>
+          <option value="Otros">Otros</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>8. Registro Fotográfico (Cargar foto del sitio):</label>
+        <input type="file" id="foto_alojamiento" accept="image/*">
+      </div>
+    </fieldset>
+
+    <!-- MÓDULO 3 -->
+    <fieldset>
+      <legend>3. Composición Familiar y Vulnerabilidades</legend>
+
+      <div class="form-group">
+        <label>13. Detalle e Integrantes del Hogar (Nombres, documento, edad, EPS, discapacidad, sexo, grupo poblacional):</label>
+        <textarea id="integrantes_detalle" rows="4" placeholder="Ej: Juan Pérez, 12345, 40 años, EPS Sura, Sin Discapacidad, M, Campesino..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>14. Número de mujeres gestantes:</label>
+        <input type="number" id="gestantes" min="0" value="0">
+      </div>
+
+      <div class="form-group">
+        <label>15. Número de mujeres lactantes:</label>
+        <input type="number" id="lactantes" min="0" value="0">
+      </div>
+
+      <div class="form-group">
+        <label>16. Número de personas diabéticas:</label>
+        <input type="number" id="diabeticos" min="0" value="0">
+      </div>
+
+      <div class="form-group">
+        <label>17. Número de personas hipertensas:</label>
+        <input type="number" id="hipertensos" min="0" value="0">
+      </div>
+    </fieldset>
+
+    <!-- MÓDULO 4 -->
+    <fieldset style="border-color: #fca5a5;">
+      <legend style="color: var(--alert);">4. Alerta Médica y Síntomas (Últimas 48 Horas)</legend>
+
+      <div class="form-group">
+        <label>22. ¿REQUIERE ATENCIÓN MÉDICA INMEDIATA?</label>
+        <select id="alerta_inmediata" style="font-weight: bold; color: var(--alert);" required>
+          <option value="NO">NO</option>
+          <option value="SI">SI - URGENTE</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>21. ¿Ha recibido atención en salud después del sismo?</label>
+        <select id="atencion_salud" required>
+          <option value="NO">NO</option>
+          <option value="SI">SI</option>
+        </select>
+      </div>
+
+      <label>20. Marque los síntomas presentes en la familia (48 hrs):</label>
+      <div class="checkbox-group">
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Ninguno"> Ninguno</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Fiebre >38.5"> Fiebre > 38.5°C</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Tos"> Tos</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Dificultad respiratoria"> Dificultad para respirar</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Dolor garganta"> Dolor de garganta</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Diarrea"> Diarrea</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Vomito"> Vómito</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Dolor abdominal"> Dolor abdominal</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Dolor cabeza"> Dolor de cabeza</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Erupción piel"> Erupción en la piel</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Conjuntivitis"> Conjuntivitis</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Lesiones/Heridas"> Lesiones o heridas</label>
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Deshidratacion"> Deshidratación</label>
+      </div>
+    </fieldset>
+
+    <!-- MÓDULO 5 -->
+    <fieldset>
+      <legend>5. Infraestructura e Higiene Sanitaria</legend>
+
+      <div class="form-group">
+        <label>9. Número de habitaciones del lugar:</label>
+        <input type="number" id="num_habitaciones" min="0" value="1">
+      </div>
+
+      <div class="form-group">
+        <label>10. Número de personas por habitación (texto, números o decimales):</label>
+        <input type="text" id="personas_habitacion" placeholder="Ej: 3, 2.5, Promedio 4..." required>
+      </div>
+
+      <div class="form-group">
+        <label>11. Número de cocinas:</label>
+        <input type="number" id="num_cocinas" min="0" value="1">
+      </div>
+
+      <div class="form-group">
+        <label>12. Número de unidades sanitarias (baños):</label>
+        <input type="number" id="num_banos" min="0" value="1">
+      </div>
+
+      <label>23. Servicios básicos disponibles:</label>
+      <div class="checkbox-group">
+        <label class="checkbox-item"><input type="checkbox" name="servicios" value="Agua"> Agua</label>
+        <label class="checkbox-item"><input type="checkbox" name="servicios" value="Energia"> Energía eléctrica</label>
+        <label class="checkbox-item"><input type="checkbox" name="servicios" value="Acueducto"> Acueducto</label>
+        <label class="checkbox-item"><input type="checkbox" name="servicios" value="Gas domiciliario"> Gas domiciliario</label>
+        <label class="checkbox-item"><input type="checkbox" name="servicios" value="Gas propano"> Gas propano (pipeta)</label>
+        <label class="checkbox-item"><input type="checkbox" name="servicios" value="Leña (Cocina)"> Leña (Cocina)</label>
+        <label class="checkbox-item"><input type="checkbox" name="servicios" value="Otro"> Otro</label>
+      </div>
+
+      <div class="form-group" style="margin-top: 8px;">
+        <label>23b. En caso de seleccionar "Otro" servicio, ¿cuál?</label>
+        <input type="text" id="servicios_cual" placeholder="Escriba cuál otro servicio...">
+      </div>
+
+      <br>
+      <div class="form-group">
+        <label>24. ¿Dispone de baño cercano?</label>
+        <select id="bano_cercano"><option value="SI">SI</option><option value="NO">NO</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>25. ¿Hay disponibilidad de lavamanos?</label>
+        <select id="lavamanos"><option value="SI">SI</option><option value="NO">NO</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>26. ¿Existe acumulación de residuos/basura?</label>
+        <select id="residuos"><option value="NO">NO</option><option value="SI">SI</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>27. ¿Hay presencia de aguas estancadas?</label>
+        <select id="aguas_estancadas"><option value="NO">NO</option><option value="SI">SI</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>28. ¿Hay presencia de roedores?</label>
+        <select id="roedores"><option value="NO">NO</option><option value="SI">SI</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>29. ¿Hay presencia de insectos/mosquitos?</label>
+        <select id="mosquitos"><option value="NO">NO</option><option value="SI">SI</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>30. ¿Se evidencia exposición a aguas residuales/excretas?</label>
+        <select id="excretas"><option value="NO">NO</option><option value="SI">SI</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>31. Condición general observable del sitio:</label>
+        <select id="condicion_sitio" required>
+          <option value="Adecuada">Adecuada</option>
+          <option value="Regular">Regular</option>
+          <option value="Inadecuada">Inadecuada</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <!-- MÓDULO 6 -->
+    <fieldset>
+      <legend>6. Agua, Alimentos y Medicamentos</legend>
+
+      <div class="form-group">
+        <label>32. ¿Dispone de agua para consumo humano?</label>
+        <select id="agua_consumo"><option value="SI">SI</option><option value="NO">NO</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>33. ¿De dónde proviene el agua de consumo?</label>
+        <select id="fuente_agua">
+          <option value="Acueducto">Acueducto</option>
+          <option value="Nacimiento">Nacimiento</option>
+          <option value="Carrotanque">Carrotanque</option>
+          <option value="Botellón/Embotellada">Botellón / Embotellada</option>
+          <option value="Pila pública">Pila pública</option>
+          <option value="Otra">Otra</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>34. ¿Dispone de recipiente adecuado y tapado para el agua?</label>
+        <select id="recipiente_agua"><option value="SI">SI</option><option value="NO">NO</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>30b. Cantidad disponible de agua:</label>
+        <select id="cantidad_agua">
+          <option value="Suficiente">Suficiente</option>
+          <option value="Limitada">Limitada</option>
+          <option value="Inexistente">Inexistente</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>35. ¿Dispone de alimentos actualmente?</label>
+        <select id="dispone_alimentos"><option value="SI">SI</option><option value="NO">NO</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>36. ¿Para cuántas horas/días tiene alimentos?</label>
+        <input type="text" id="duracion_alimentos" placeholder="Ej: 2 días / 48 horas">
+      </div>
+
+      <div class="form-group">
+        <label>37. ¿Cuenta con un lugar seguro para almacenar alimentos?</label>
+        <select id="almacen_alimentos"><option value="SI">SI</option><option value="NO">NO</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>38. Conservación de alimentos refrigerados:</label>
+        <select id="refrigeracion_alimentos">
+          <option value="Dispone de nevera en el sitio">Dispone de nevera en el sitio</option>
+          <option value="Acceso a refrigerador en otro lugar">Acceso a refrigerador en otro lugar</option>
+          <option value="No dispone de refrigeración">No dispone de refrigeración</option>
+          <option value="No requiere refrigeración">No requiere refrigeración</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>39. ¿Hay personas que requieran medicamentos de uso continuo?</label>
+        <select id="req_meds"><option value="NO">NO</option><option value="SI">SI</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>39b. ¿Cuáles medicamentos de uso continuo requiere la familia?</label>
+        <input type="text" id="quien_cuales_meds" placeholder="Escriba los nombres de los medicamentos...">
+      </div>
+
+      <div class="form-group">
+        <label>39c. Registro fotográfico de la fórmula médica (opcional):</label>
+        <input type="file" id="foto_formula_medica" accept="image/*">
+      </div>
+
+      <div class="form-group">
+        <label>40. Disponibilidad actual de estos medicamentos:</label>
+        <select id="dispo_meds">
+          <option value="N/A">N/A</option>
+          <option value="Todos">Todos</option>
+          <option value="Algunos">Algunos</option>
+          <option value="Ninguno">Ninguno</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <!-- MÓDULO 7 -->
+    <fieldset>
+      <legend>7. Mascotas y Animales Domésticos</legend>
+
+      <div class="form-group">
+        <label>41. Número de perros:</label>
+        <input type="number" id="num_perros" min="0" value="0">
+      </div>
+
+      <div class="form-group">
+        <label>42. Número de gatos:</label>
+        <input type="number" id="num_gatos" min="0" value="0">
+      </div>
+
+      <div class="form-group">
+        <label>43. ¿Están vacunados contra la rabia?</label>
+        <select id="vacuna_rabia">
+          <option value="N/A">N/A</option>
+          <option value="SI">SI</option>
+          <option value="NO">NO</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>44. Número de otras mascotas:</label>
+        <input type="number" id="otras_mascotas" min="0" value="0">
+      </div>
+
+      <div class="form-group">
+        <label>45. Descripción de otras especies (o No aplica):</label>
+        <input type="text" id="desc_otras_mascotas" value="No aplica">
+      </div>
+
+      <div class="form-group">
+        <label>46. ¿Dispone de alimento para los animales?</label>
+        <select id="alimento_mascotas">
+          <option value="N/A">N/A</option>
+          <option value="SI">SI</option>
+          <option value="NO">NO</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <!-- MÓDULO 8 -->
+    <fieldset>
+      <legend>8. Decisión, Necesidades y Cierre</legend>
+
+      <div class="form-group">
+        <label>47. Principal necesidad identificada en el hogar:</label>
+        <select id="necesidad_principal" required>
+          <option value="">Seleccione...</option>
+          <option value="Agua">Agua</option>
+          <option value="Alimentos">Alimentos</option>
+          <option value="Medicamentos">Medicamentos</option>
+          <option value="Atención médica">Atención médica</option>
+          <option value="Atención psicológica">Atención psicológica</option>
+          <option value="Baños">Baños</option>
+          <option value="Elementos de higiene">Elementos de higiene</option>
+          <option value="Manejo de residuos">Manejo de residuos</option>
+          <option value="Alojamiento">Alojamiento</option>
+          <option value="Protección y seguridad">Protección y seguridad</option>
+          <option value="Información y orientación">Información y orientación</option>
+          <option value="Alimentos para mascotas">Alimentos para mascotas</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>48. Intención del núcleo familiar respecto a su permanencia:</label>
+        <select id="intencion_traslado" required>
+          <option value="">Seleccione...</option>
+          <option value="Solicita traslado a albergue oficial">Solicita traslado a albergue oficial</option>
+          <option value="No acepta traslado a albergue">No acepta traslado a albergue</option>
+          <option value="Desea permanecer en sitio actual y no requiere traslado">Desea permanecer en sitio actual y no requiere traslado</option>
+          <option value="Dispuesto a trasladarse a albergue oficial">Dispuesto a trasladarse a albergue oficial</option>
+          <option value="No ha definido / Requiere consultar con el núcleo">No ha definido / Requiere consultar con el núcleo</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <button type="submit" class="btn-primary">Guardar Caracterización</button>
+  </form>
+
+  <div class="counter-box">
+    Fichas guardadas en el equipo: <strong id="recordCount">0</strong>
+    <button id="exportBtn" class="btn-secondary">Exportar Base de Datos a Excel (CSV)</button>
+  </div>
+</div>
+
+<script>
+  // Manejo del estado offline/online
+  const statusDiv = document.getElementById('status');
+  function updateOnlineStatus() {
+    if (navigator.onLine) {
+      statusDiv.textContent = "Conexión activa - Sistema en Línea";
+      statusDiv.className = "status-bar online";
+    } else {
+      statusDiv.textContent = "Modo Offline (Sin señal - Datos guardando localmente)";
+      statusDiv.className = "status-bar offline";
+    }
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+
+  // Base de Datos en el dispositivo (IndexedDB)
+  let db;
+  const request = indexedDB.open("SismoSABDB", 1);
+
+  request.onupgradeneeded = function(e) {
+    db = e.target.result;
+    if (!db.objectStoreNames.contains("caracterizaciones")) {
+      db.createObjectStore("caracterizaciones", { keyPath: "id", autoIncrement: true });
+    }
+  };
+
+  request.onsuccess = function(e) {
+    db = e.target.result;
+    updateCounter();
+  };
+
+  // Guardado de la entrevista
+  document.getElementById('emergencyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Obtener síntomas marcados
+    const sintomasArr = [];
+    document.querySelectorAll('input[name="sintomas"]:checked').forEach(cb => sintomasArr.push(cb.value));
+
+    // Obtener servicios marcados
+    const serviciosArr = [];
+    document.querySelectorAll('input[name="servicios"]:checked').forEach(cb => serviciosArr.push(cb.value));
+
+    const formData = {
+      encuestador: document.getElementById('encuestador').value,
+      fecha_visita: document.getElementById('fecha_visita').value,
+      hora_visita: document.getElementById('hora_visita').value,
+      municipio_depto: document.getElementById('municipio_depto').value,
+      barrio_vereda: document.getElementById('barrio_vereda').value,
+      ubicacion_gps: document.getElementById('ubicacion_gps').value,
+      jefe_hogar: document.getElementById('jefe_hogar').value,
+      telefono: document.getElementById('telefono').value,
+      lugar_permanencia: document.getElementById('lugar_permanencia').value,
+      motivo_permanencia: document.getElementById('motivo_permanencia').value,
+      integrantes_detalle: document.getElementById('integrantes_detalle').value,
+      gestantes: document.getElementById('gestantes').value,
+      lactantes: document.getElementById('lactantes').value,
+      diabeticos: document.getElementById('diabeticos').value,
+      hipertensos: document.getElementById('hipertensos').value,
+      alerta_inmediata: document.getElementById('alerta_inmediata').value,
+      atencion_salud: document.getElementById('atencion_salud').value,
+      sintomas: sintomasArr.join(' - '),
+      num_habitaciones: document.getElementById('num_habitaciones').value,
+      personas_habitacion: document.getElementById('personas_habitacion').value,
+      num_cocinas: document.getElementById('num_cocinas').value,
+      num_banos: document.getElementById('num_banos').value,
+      servicios: serviciosArr.join(' - '),
+      servicios_cual: document.getElementById('servicios_cual').value,
+      bano_cercano: document.getElementById('bano_cercano').value,
+      lavamanos: document.getElementById('lavamanos').value,
+      residuos: document.getElementById('residuos').value,
+      aguas_estancadas: document.getElementById('aguas_estancadas').value,
+      roedores: document.getElementById('roedores').value,
+      mosquitos: document.getElementById('mosquitos').value,
+      excretas: document.getElementById('excretas').value,
+      condicion_sitio: document.getElementById('condicion_sitio').value,
+      agua_consumo: document.getElementById('agua_consumo').value,
+      fuente_agua: document.getElementById('fuente_agua').value,
+      recipiente_agua: document.getElementById('recipiente_agua').value,
+      cantidad_agua: document.getElementById('cantidad_agua').value,
+      dispone_alimentos: document.getElementById('dispone_alimentos').value,
+      duracion_alimentos: document.getElementById('duracion_alimentos').value,
+      almacen_alimentos: document.getElementById('almacen_alimentos').value,
+      refrigeracion_alimentos: document.getElementById('refrigeracion_alimentos').value,
+      req_meds: document.getElementById('req_meds').value,
+      quien_cuales_meds: document.getElementById('quien_cuales_meds').value,
+      dispo_meds: document.getElementById('dispo_meds').value,
+      num_perros: document.getElementById('num_perros').value,
+      num_gatos: document.getElementById('num_gatos').value,
+      vacuna_rabia: document.getElementById('vacuna_rabia').value,
+      otras_mascotas: document.getElementById('otras_mascotas').value,
+      desc_otras_mascotas: document.getElementById('desc_otras_mascotas').value,
+      alimento_mascotas: document.getElementById('alimento_mascotas').value,
+      necesidad_principal: document.getElementById('necesidad_principal').value,
+      intencion_traslado: document.getElementById('intencion_traslado').value
+    };
+
+    const transaction = db.transaction(["caracterizaciones"], "readwrite");
+    const store = transaction.objectStore("caracterizaciones");
+    store.add(formData);
+
+    transaction.oncomplete = function() {
+      alert("¡Caracterización guardada con éxito en el teléfono!");
+      document.getElementById('emergencyForm').reset();
+      updateCounter();
+    };
+  });
+
+  function updateCounter() {
+    const transaction = db.transaction(["caracterizaciones"], "readonly");
+    const store = transaction.objectStore("caracterizaciones");
+    const countRequest = store.count();
+    countRequest.onsuccess = function() {
+      document.getElementById('recordCount').textContent = countRequest.result;
+    };
+  }
+
+  // Exportar a Excel (CSV)
+  document.getElementById('exportBtn').addEventListener('click', function() {
+    const transaction = db.transaction(["caracterizaciones"], "readonly");
+    const store = transaction.objectStore("caracterizaciones");
+    const getAllRequest = store.getAll();
+
+    getAllRequest.onsuccess = function() {
+      const records = getAllRequest.result;
+      if (records.length === 0) {
+        alert("No hay registros almacenados.");
+        return;
+      }
+
+      // Encabezados del CSV
+      const keys = Object.keys(records[0]);
+      let csv = keys.join(",") + "\n";
+
+      records.forEach(r => {
+        let row = keys.map(k => `"${String(r[k] || '').replace(/"/g, '""')}"`).join(",");
+        csv += row + "\n";
+      });
+
+      const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Caracterizacion_Sismo_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+  });
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker registrado correctamente'))
+        .catch(err => console.error('Error al registrar Service Worker:', err));
+    });
+  }
