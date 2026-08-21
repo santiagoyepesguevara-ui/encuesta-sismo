@@ -212,6 +212,7 @@
           <option value="Protección de pertenencias">Protección de pertenencias</option>
           <option value="Cuidado establecimiento/local">Cuidado de establecimiento o local</option>
           <option value="Cuidado de predio">Cuidado de predio</option>
+          <option value="No tengo otro sitio">No tengo otro sitio</option>
           <option value="Otros">Otros</option>
         </select>
       </div>
@@ -274,6 +275,7 @@
 
       <label>20. Marque los síntomas presentes en la familia (48 hrs):</label>
       <div class="checkbox-group">
+        <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Ninguno"> Ninguno</label>
         <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Fiebre >38.5"> Fiebre > 38.5°C</label>
         <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Tos"> Tos</label>
         <label class="checkbox-item"><input type="checkbox" name="sintomas" value="Dificultad respiratoria"> Dificultad para respirar</label>
@@ -299,8 +301,8 @@
       </div>
 
       <div class="form-group">
-        <label>10. Número de personas por habitación:</label>
-        <input type="number" id="personas_habitacion" min="0" value="1">
+        <label>10. Número de personas por habitación (texto, números o decimales):</label>
+        <input type="text" id="personas_habitacion" placeholder="Ej: 3, 2.5, Promedio 4..." required>
       </div>
 
       <div class="form-group">
@@ -320,6 +322,13 @@
         <label class="checkbox-item"><input type="checkbox" name="servicios" value="Acueducto"> Acueducto</label>
         <label class="checkbox-item"><input type="checkbox" name="servicios" value="Gas domiciliario"> Gas domiciliario</label>
         <label class="checkbox-item"><input type="checkbox" name="servicios" value="Gas propano"> Gas propano (pipeta)</label>
+        <label class="checkbox-item"><input type="checkbox" name="servicios" value="Leña (Cocina)"> Leña (Cocina)</label>
+        <label class="checkbox-item"><input type="checkbox" name="servicios" value="Otro"> Otro</label>
+      </div>
+
+      <div class="form-group" style="margin-top: 8px;">
+        <label>23b. En caso de seleccionar "Otro" servicio, ¿cuál?</label>
+        <input type="text" id="servicios_cual" placeholder="Escriba cuál otro servicio...">
       </div>
 
       <br>
@@ -381,6 +390,7 @@
         <label>33. ¿De dónde proviene el agua de consumo?</label>
         <select id="fuente_agua">
           <option value="Acueducto">Acueducto</option>
+          <option value="Nacimiento">Nacimiento</option>
           <option value="Carrotanque">Carrotanque</option>
           <option value="Botellón/Embotellada">Botellón / Embotellada</option>
           <option value="Pila pública">Pila pública</option>
@@ -430,6 +440,16 @@
       <div class="form-group">
         <label>39. ¿Hay personas que requieran medicamentos de uso continuo?</label>
         <select id="req_meds"><option value="NO">NO</option><option value="SI">SI</option></select>
+      </div>
+
+      <div class="form-group">
+        <label>39b. ¿Cuáles medicamentos de uso continuo requiere la familia?</label>
+        <input type="text" id="quien_cuales_meds" placeholder="Escriba los nombres de los medicamentos...">
+      </div>
+
+      <div class="form-group">
+        <label>39c. Registro fotográfico de la fórmula médica (opcional):</label>
+        <input type="file" id="foto_formula_medica" accept="image/*">
       </div>
 
       <div class="form-group">
@@ -599,6 +619,7 @@
       num_cocinas: document.getElementById('num_cocinas').value,
       num_banos: document.getElementById('num_banos').value,
       servicios: serviciosArr.join(' - '),
+      servicios_cual: document.getElementById('servicios_cual').value,
       bano_cercano: document.getElementById('bano_cercano').value,
       lavamanos: document.getElementById('lavamanos').value,
       residuos: document.getElementById('residuos').value,
@@ -616,6 +637,7 @@
       almacen_alimentos: document.getElementById('almacen_alimentos').value,
       refrigeracion_alimentos: document.getElementById('refrigeracion_alimentos').value,
       req_meds: document.getElementById('req_meds').value,
+      quien_cuales_meds: document.getElementById('quien_cuales_meds').value,
       dispo_meds: document.getElementById('dispo_meds').value,
       num_perros: document.getElementById('num_perros').value,
       num_gatos: document.getElementById('num_gatos').value,
@@ -679,6 +701,7 @@
     };
   });
 </script>
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -688,5 +711,6 @@
     });
   }
 </script>
+
 </body>
 </html>
