@@ -1,32 +1,41 @@
-const CACHE_NAME = 'sismo-app-v1';
-const urlsToCache = [
+const CACHE_NAME = 'sismo-app-v2'; // <--- Cambiamos a v2 para forzar la actualización
+const ASSETS = [
   './',
-  './index.html'
+  './index.html',
+  './manifest.json',
+  './icon.png'
 ];
 
-// Instalación: Guarda el index.html en la memoria del celular
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting())
+// Instalación: Guarda los archivos en caché e ignora el caché viejo
+self.addEventListener('install', (e) => {
+  self.skipWaiting(); // Obliga al nuevo Service Worker a activarse de inmediato
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
   );
 });
 
-// Activación
-self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim());
+// Activación: Borra cachés antiguas automáticamente
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    }).then(() => self.clients.claim())
+  );
 });
 
-// Intercepción de red: Si no hay internet, entrega el archivo guardado en memoria
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response; // Devuelve la versión offline
-        }
-        return fetch(event.request); // Si hay red, usa la red
-      })
+// Estrategia de búsqueda: Busca en red primero cuando hay conexión, si no hay red usa caché
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    fetch(e.request).catch(() => {
+      return caches.match(e.request);
+    })
   );
 });
